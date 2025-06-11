@@ -4,10 +4,10 @@ error_reporting(0);
 ini_set('display_errors', 0);
 
 // Database configuration for Paper Stock Management System
-$host = 'sql101.infinityfree.com';
-$username = 'if0_39085666';
-$password = 'OR2McjtktWJg';
-$database = 'if0_39085666_stock';
+$host = 'sql12.freesqldatabase.com';
+$username = 'sql12784281';
+$password = 'TTfcAuK6pP';
+$database = 'sql12784281';
 
 // Create connection
 $conn = new mysqli($host, $username, $password, $database);
