@@ -645,27 +645,24 @@ function checkRequirements() {
                 <form method="post">
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="db_host" class="form-label">Database Host</label>
+                            <div class="mb-3">                                <label for="db_host" class="form-label">Database Host</label>
                                 <input type="text" class="form-control" id="db_host" name="db_host" 
-                                       value="<?php echo htmlspecialchars($_POST['db_host'] ?? 'localhost'); ?>" required>
-                                <small class="form-text text-muted">Usually 'localhost' for most hosting providers</small>
+                                       value="<?php echo htmlspecialchars($_POST['db_host'] ?? 'sql12.freesqldatabase.com'); ?>" required>
+                                <small class="form-text text-muted">FreeMySQL Host: sql12.freesqldatabase.com</small>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="db_name" class="form-label">Database Name</label>
+                            <div class="mb-3">                                <label for="db_name" class="form-label">Database Name</label>
                                 <input type="text" class="form-control" id="db_name" name="db_name" 
-                                       value="<?php echo htmlspecialchars($_POST['db_name'] ?? ''); ?>" required>
+                                       value="<?php echo htmlspecialchars($_POST['db_name'] ?? 'sql12784281'); ?>" required>
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="db_user" class="form-label">Database Username</label>
+                            <div class="mb-3">                                <label for="db_user" class="form-label">Database Username</label>
                                 <input type="text" class="form-control" id="db_user" name="db_user" 
-                                       value="<?php echo htmlspecialchars($_POST['db_user'] ?? ''); ?>" required>
+                                       value="<?php echo htmlspecialchars($_POST['db_user'] ?? 'sql12784281'); ?>" required>
                             </div>
                         </div>
                         <div class="col-md-6">
