@@ -1,0 +1,47 @@
+🚀 DEPLOYMENT INSTRUCTIONS
+=============================
+
+STEP 1: Upload to Web Server
+----------------------------
+1. Upload ALL files and folders from this 'hosting' directory to your web server
+2. Upload to your domain's public folder (usually 'public_html' or 'www')
+3. Maintain the folder structure exactly as it is
+
+STEP 2: Run Web Installer
+-------------------------
+1. Open your web browser
+2. Go to: http://yourdomain.com/Install.php
+3. Follow the installation wizard:
+   ✓ Check system requirements
+   ✓ Enter database details
+   ✓ Set admin password
+   ✓ Complete installation
+
+STEP 3: Launch Application
+-------------------------
+1. Delete Install.php file (IMPORTANT for security!)
+2. Visit: http://yourdomain.com/index.html
+3. Start using your Paper Stock Management System!
+
+📁 FOLDER STRUCTURE AFTER UPLOAD:
+--------------------------------
+public_html/
+├── index.html          ← Main application
+├── Install.php         ← Run this first, then delete
+├── script.js          ← JavaScript files
+├── styles.css         ← Styling
+├── api/               ← Backend files
+│   ├── config.php     ← Created by installer
+│   ├── get_rolls.php  ← API endpoints
+│   └── ...
+└── exports/           ← Excel export folder
+
+⚠️  IMPORTANT NOTES:
+------------------
+- Make sure you have a MySQL database ready
+- Note down your database name, username, and password
+- InfinityFree users: Database names start with 'if0_'
+- Always delete Install.php after successful installation
+
+✅ READY TO DEPLOY!
+This package is complete and ready for any web hosting provider.

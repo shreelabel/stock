@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shree Label Creation - Paper Stock Management</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-industry me-2"></i>
+                Shree Label Creation - Paper Stock Management
+            </a>            <div class="navbar-nav ms-auto">
+                <div id="loginSection" class="d-flex align-items-center">
+                    <input type="password" id="adminPassword" class="form-control me-2" placeholder="Admin Password" style="width: 150px;">
+                    <button onclick="handleLogin()" class="btn btn-success btn-sm me-2">Login</button>
+                    <button onclick="showChangePasswordModal()" class="btn btn-warning btn-sm me-2 d-none" id="changePasswordBtn">
+                        <i class="fas fa-key me-1"></i>Change Password
+                    </button>
+                    <button onclick="handleLogout()" class="btn btn-outline-light btn-sm d-none" id="logoutBtn">Logout</button>
+                    <span id="adminStatus" class="text-light ms-2"></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-3">
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-tabs" id="mainTabs">
+            <li class="nav-item">
+                <a class="nav-link active" id="view-stock-tab" data-bs-toggle="tab" href="#view-stock">
+                    <i class="fas fa-table me-1"></i>View Stock
+                </a>
+            </li>
+            <li class="nav-item" id="add-roll-tab-item" style="display: none;">
+                <a class="nav-link" id="add-roll-tab" data-bs-toggle="tab" href="#add-roll">
+                    <i class="fas fa-plus me-1"></i>Add Roll
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="multi-slit-tab" data-bs-toggle="tab" href="#multi-slit">
+                    <i class="fas fa-cut me-1"></i>Multi Slit
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="stock-report-tab" data-bs-toggle="tab" href="#stock-report">
+                    <i class="fas fa-chart-bar me-1"></i>Stock Report
+                </a>            </li>            <li class="nav-item" id="excel-tab-item">
+                <a class="nav-link" id="excel-tab" data-bs-toggle="tab" href="#excel-operations">
+                    <i class="fas fa-file-excel me-1"></i>Excel Operations
+                </a>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="mainTabContent">
+            <!-- View Stock Tab -->
+            <div class="tab-pane fade show active" id="view-stock">
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Paper Stock Inventory</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Filters -->
+                        <div class="row mb-2">
+                            <div class="col-md-2">
+                                <input type="text" id="searchInput" class="form-control" placeholder="Search rolls...">
+                            </div>
+                            <div class="col-md-1">
+                                <select id="materialFilter" class="form-select">
+                                    <option value="">Material</option>
+                                </select>
+                            </div>
+                            <div class="col-md-1">
+                                <select id="statusFilter" class="form-select">
+                                    <option value="">Status</option>
+                                    <option value="Stock">Stock</option>
+                                    <option value="Printing">Printing</option>
+                                    <option value="Used">Used</option>
+                                    <option value="Original">Original</option>
+                                </select>
+                            </div>
+                            <div class="col-md-1">
+                                <select id="companyFilter" class="form-select">
+                                    <option value="">Company</option>
+                                </select>
+                            </div>
+                            <div class="col-md-1">
+                                <select id="gsmFilter" class="form-select">
+                                    <option value="">GSM</option>
+                                </select>
+                            </div>
+                            <div class="col-md-1">
+                                <select id="widthFilter" class="form-select">
+                                    <option value="">Width</option>
+                                </select>
+                            </div>
+                            <div class="col-md-1">
+                                <select id="lengthFilter" class="form-select">
+                                    <option value="">Length</option>
+                                </select>
+                            </div>
+                            <div class="col-md-1">
+                                <input type="text" id="lotNoFilter" class="form-control" placeholder="Lot No">
+                            </div>
+                            <div class="col-md-1">
+                                <input type="text" id="jobNameFilter" class="form-control" placeholder="Job Name">
+                            </div>
+                            <div class="col-md-2">
+                                <div class="btn-group">
+                                    <button onclick="applyFilters()" class="btn btn-primary btn-sm">Apply</button>
+                                    <button onclick="clearAllFilters()" class="btn btn-secondary btn-sm">Clear</button>
+                                    <button onclick="printStock()" class="btn btn-success btn-sm">Print</button>
+                                    <button onclick="exportToExcel()" class="btn btn-info btn-sm">Export</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stock Table -->
+                        <div class="table-responsive">
+                            <table class="table table-striped" id="stockTable">
+                                <thead class="table-dark">
+                                    <tr>                                        <th onclick="sortTable('serial')" style="cursor: pointer;">Sl. No. <i id="sort-serial" class="fas fa-sort"></i></th>
+                                        <th onclick="sortTable('rollnumber')" style="cursor: pointer;">Roll Number <i id="sort-rollnumber" class="fas fa-sort"></i></th>
+                                        <th onclick="sortTable('status')" style="cursor: pointer;">Status <i id="sort-status" class="fas fa-sort"></i></th>
+                                        <th onclick="sortTable('material')" style="cursor: pointer;">Material <i id="sort-material" class="fas fa-sort"></i></th>
+                                        <th onclick="sortTable('papercompany')" style="cursor: pointer;">Paper Company <i id="sort-papercompany" class="fas fa-sort"></i></th>
+                                        <th onclick="sortTable('gsm')" style="cursor: pointer;">GSM <i id="sort-gsm" class="fas fa-sort"></i></th>
+                                        <th onclick="sortTable('width')" style="cursor: pointer;">Width (mm) <i id="sort-width" class="fas fa-sort"></i></th>
+                                        <th onclick="sortTable('length')" style="cursor: pointer;">Length (m) <i id="sort-length" class="fas fa-sort"></i></th>
+                                        <th>Square Meter</th>
+                                        <th onclick="sortTable('weight')" style="cursor: pointer;">Weight (kg) <i id="sort-weight" class="fas fa-sort"></i></th>
+                                        <th>Lot No</th>
+                                        <th>Job Name</th>
+                                        <th>Job No</th>
+                                        <th>Job Size</th>
+                                        <th onclick="sortTable('date_added')" style="cursor: pointer;">Date Added <i id="sort-date_added" class="fas fa-sort"></i></th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="stockTableBody">
+                                    <!-- Data will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Roll Tab -->
+            <div class="tab-pane fade" id="add-roll">
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Add New Paper Roll</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="addRollForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Roll Number <span class="text-danger">*</span></label>
+                                        <input type="text" id="rollNumber" class="form-control" placeholder="Enter roll number" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Material <span class="text-danger">*</span></label>
+                                        <select id="material" class="form-select" required onchange="handleMaterialChange()">
+                                            <option value="">Select Material</option>
+                                            <option value="Chromo" selected>Chromo</option>
+                                            <option value="PP White">PP White</option>
+                                            <option value="Clear To Clear">Clear To Clear</option>
+                                            <option value="Transparent">Transparent</option>
+                                            <option value="Metalic">Metalic</option>
+                                            <option value="Custom">Custom</option>
+                                        </select>
+                                        <input type="text" id="customMaterial" class="form-control mt-2 d-none" placeholder="Enter custom material">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Paper Company <span class="text-danger">*</span></label>
+                                        <select id="paperCompany" class="form-select" required onchange="handleCompanyChange()">
+                                            <option value="">Select Company</option>
+                                            <option value="Camline" selected>Camline</option>
+                                            <option value="Nitin">Nitin</option>
+                                            <option value="STP">STP</option>
+                                            <option value="Allied">Allied</option>
+                                            <option value="Custom">Custom</option>
+                                        </select>
+                                        <input type="text" id="customCompany" class="form-control mt-2 d-none" placeholder="Enter custom company">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">GSM <span class="text-danger">*</span></label>
+                                        <input type="number" id="gsm" class="form-control" placeholder="Enter GSM value" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Width (mm) <span class="text-danger">*</span></label>
+                                        <input type="number" id="width" class="form-control" value="1000" required oninput="calculateSquareMeter()">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Length (m) <span class="text-danger">*</span></label>
+                                        <input type="number" id="length" class="form-control" value="2000" required oninput="calculateSquareMeter()">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Square Meter</label>
+                                        <input type="number" id="squareMeter" class="form-control" readonly placeholder="Auto-calculated">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Weight (kg) <span class="text-danger">*</span></label>
+                                        <input type="number" id="weight" class="form-control" value="10" required>
+                                    </div>                                    <div class="mb-3">
+                                        <label class="form-label">Lot Number <span class="text-danger">*</span></label>
+                                        <input type="text" id="lotNo" class="form-control" placeholder="Enter lot number" required>
+                                        <small class="form-text text-muted">Enter a valid lot number or leave blank for 'N/A'</small>
+                                        <div id="lotNoFeedback" class="invalid-feedback">
+                                            Please enter a valid lot number or clear the field.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-plus me-1"></i>Add Roll
+                            </button>
+                        </form>
+                        
+                        <!-- Admin Only: Delete All Stock Rolls Section -->
+                        <div class="mt-5 pt-4 border-top">
+                            <div class="card border-danger">
+                                <div class="card-header bg-danger text-white">
+                                    <h6 class="card-title mb-0">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>Danger Zone - Admin Only
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="text-danger">Delete All Stock Rolls</h6>
+                                    <p class="text-muted mb-3">
+                                        This action will permanently delete ALL rolls from the database except the protected sample roll. 
+                                        This action cannot be undone.
+                                    </p>
+                                    <button type="button" class="btn btn-danger" onclick="showDeleteAllModal()">
+                                        <i class="fas fa-trash me-1"></i>Delete All Stock Rolls
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Multi Slit Tab -->
+            <div class="tab-pane fade" id="multi-slit">
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Multi Roll Slitting</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Filter Section -->
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">Filter Rolls</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Material</label>
+                                        <select id="slitMaterialFilter" class="form-select" onchange="filterSlitRolls()">
+                                            <option value="">All Materials</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Company</label>
+                                        <select id="slitCompanyFilter" class="form-select" onchange="filterSlitRolls()">
+                                            <option value="">All Companies</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Status</label>
+                                        <select id="slitStatusFilter" class="form-select" onchange="filterSlitRolls()">
+                                            <option value="">All Status</option>
+                                            <option value="Stock">Stock</option>
+                                            <option value="Printing">Printing</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3 d-flex align-items-end">
+                                        <button type="button" class="btn btn-secondary" onclick="clearSlitFilters()">Clear Filters</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Roll Selection Section -->
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">Select Roll to Slit</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Search and Select Roll</label>
+                                        <input type="text" id="rollSearchInput" class="form-control mb-2" placeholder="Search rolls..." onkeyup="filterSlitRolls()">
+                                        <select id="multiSlitRollSelect" class="form-select" onchange="handleMultiSlitRollSelection()">
+                                            <option value="">Select a roll</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                          <div id="multiSlitInputs" class="d-none">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <h6>Original Roll Details</h6>
+                                    <div id="originalRollDetails"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Remaining Dimensions</h6>
+                                    <div id="remainingDimensions"></div>
+                                </div>
+                            </div>
+                            <div id="slitInputsContainer"></div>                            <div class="row mb-2 d-none" id="slitInputsHeader">
+                                <div class="col-md-1"><strong>Width (mm)</strong></div>
+                                <div class="col-md-1"><strong>Length (m)</strong></div>
+                                <div class="col-md-1"><strong>Suffix</strong></div>
+                                <div class="col-md-2"><strong>Status</strong></div>
+                                <div class="col-md-2"><strong>Job Name</strong></div>
+                                <div class="col-md-2"><strong>Job No.</strong></div>
+                                <div class="col-md-2"><strong>Job Size</strong></div>
+                                <div class="col-md-1"><strong>Action</strong></div>
+                            </div>
+                            <div class="mb-3"> <!-- Removed d-flex justify-content-end -->
+                                <button id="slitProcessBtn" onclick="processMultiSlit()" class="btn btn-success me-2">Slit</button>
+                                <button onclick="addSlitInput()" class="btn btn-primary">Add Another Slit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stock Report Tab -->
+            <div class="tab-pane fade" id="stock-report">
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Stock Reports & Analytics</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Report Filters -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h6 class="mb-0">Report Filters</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Report Type</label>
+                                        <select id="reportType" class="form-select">
+                                            <option value="overview">Stock Overview</option>
+                                            <option value="material">By Material</option>
+                                            <option value="company">By Company</option>
+                                            <option value="status">By Status</option>
+                                            <option value="date">By Date Range</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Material Filter</label>
+                                        <select id="reportMaterialFilter" class="form-select">
+                                            <option value="">All Materials</option>
+                                            <option value="Chromo">Chromo</option>
+                                            <option value="PP White">PP White</option>
+                                            <option value="Clear To Clear">Clear To Clear</option>
+                                            <option value="Metalic">Metalic</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Company Filter</label>
+                                        <select id="reportCompanyFilter" class="form-select">
+                                            <option value="">All Companies</option>
+                                            <option value="Camline">Camline</option>
+                                            <option value="Nitin">Nitin</option>
+                                            <option value="STP">STP</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Status Filter</label>
+                                        <select id="reportStatusFilter" class="form-select">
+                                            <option value="">All Status</option>
+                                            <option value="Stock">Stock</option>
+                                            <option value="Printing">Printing</option>
+                                            <option value="Used">Used</option>
+                                            <option value="Original">Original</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row mt-3" id="dateRangeFilter" style="display: none;">
+                                    <div class="col-md-4">
+                                        <label class="form-label">From Date</label>
+                                        <input type="date" id="fromDate" class="form-control">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">To Date</label>
+                                        <input type="date" id="toDate" class="form-control">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Quick Select</label>
+                                        <select id="quickDateSelect" class="form-select">
+                                            <option value="">Custom Range</option>
+                                            <option value="today">Today</option>
+                                            <option value="week">This Week</option>
+                                            <option value="month">This Month</option>
+                                            <option value="year">This Year</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>                        </div>
+
+                        <!-- Report Actions -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h6 class="mb-0">Report Actions</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <button id="generateReportBtn" class="btn btn-primary me-2">
+                                            <i class="fas fa-chart-bar me-1"></i>Generate Report
+                                        </button>
+                                        <button id="printReportBtn" class="btn btn-secondary me-2">
+                                            <i class="fas fa-print me-1"></i>Print Report
+                                        </button>
+                                        <button id="printStockBtn" class="btn btn-info me-2">
+                                            <i class="fas fa-print me-1"></i>Print Stock
+                                        </button>
+                                        <button id="exportExcelBtn" class="btn btn-success me-2">
+                                            <i class="fas fa-file-excel me-1"></i>Export Excel
+                                        </button>                                        <button id="exportCSVBtn" class="btn btn-warning me-2">
+                                            <i class="fas fa-file-csv me-1"></i>Export CSV
+                                        </button>
+                                        <button id="clearFiltersBtn" class="btn btn-secondary">
+                                            <i class="fas fa-filter-circle-xmark me-1"></i>Clear Filters
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Report Content -->
+                        <div id="stockReportContent">
+                            <!-- Report content will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Excel Operations Tab -->
+            <div class="tab-pane fade" id="excel-operations">
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Excel Import/Export Operations</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Import from Excel</h6>
+                                <div class="mb-3">
+                                    <input type="file" id="excelFile" class="form-control" accept=".xlsx,.xls,.csv">
+                                </div>
+                                <button onclick="uploadExcel()" class="btn btn-primary">Upload Excel</button>
+                                <hr>
+                                <h6>Download Template</h6>
+                                <button onclick="downloadTemplate()" class="btn btn-info">Download CSV Template</button>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Database Operations</h6>
+                                <button onclick="backupDatabase()" class="btn btn-warning">Backup Database</button>
+                                <hr>
+                                <h6>Restore Database</h6>
+                                <div class="mb-3">
+                                    <input type="file" id="backupFile" class="form-control" accept=".sql">
+                                </div>
+                                <button onclick="restoreDatabase()" class="btn btn-danger">Restore Database</button>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h6>Scheduled Excel Export (Cron Job / Task Scheduler)</h6>
+                                <p>
+                                    To automate the export of stock data, you can set up a scheduled task (like Cron on Linux/macOS or Task Scheduler on Windows) to run the following PHP script:
+                                </p>
+                                <pre><code class="language-bash">php c:/xampp/htdocs/stock/api/export_stock_excel.php</code></pre>
+                                <p>
+                                    When run from the command line, this script will save the exported CSV file to the <code>c:/xampp/htdocs/stock/exports/</code> directory.
+                                </p>
+                                <p class="text-muted">
+                                    Note: Ensure PHP is in your system's PATH or provide the full path to the PHP executable.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Roll</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editRollForm">
+                        <input type="hidden" id="editRollId">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Roll Number</label>
+                                    <input type="text" id="editRollNumber" class="form-control" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Material</label>
+                                    <select id="editMaterial" class="form-select">
+                                        <option value="Chromo">Chromo</option>
+                                        <option value="PP White">PP White</option>
+                                        <option value="Clear To Clear">Clear To Clear</option>
+                                        <option value="Metalic">Metalic</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Paper Company</label>
+                                    <select id="editPaperCompany" class="form-select">
+                                        <option value="Camline">Camline</option>
+                                        <option value="Nitin">Nitin</option>
+                                        <option value="STP">STP</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">GSM</label>
+                                    <input type="number" id="editGsm" class="form-control">
+                                </div>                                <div class="mb-3">
+                                    <label class="form-label">Status</label>
+                                    <select id="editStatus" class="form-select">
+                                        <option value="Stock">Stock</option>
+                                        <option value="Printing">Printing</option>
+                                        <option value="Used">Used</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Width (mm)</label>
+                                    <input type="number" id="editWidth" class="form-control">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Length (m)</label>
+                                    <input type="number" id="editLength" class="form-control">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Weight (kg)</label>
+                                    <input type="number" id="editWeight" class="form-control">
+                                </div>                                <div class="mb-3">
+                                    <label class="form-label">Lot Number</label>
+                                    <input type="text" id="editLotNo" class="form-control" placeholder="Enter lot number">
+                                    <small class="form-text text-muted">If left empty, 'N/A' will be used</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Job Name</label>
+                                    <input type="text" id="editJobName" class="form-control">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Job Number</label>
+                                    <input type="text" id="editJobNo" class="form-control">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Job Size</label>
+                                    <input type="text" id="editJobSize" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Slitting Section -->
+                        <div class="border-top pt-3 mt-3">
+                            <h6>Slitting Options</h6>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="enableSlitting">
+                                <label class="form-check-label" for="enableSlitting">
+                                    Enable slitting for this roll
+                                </label>
+                            </div>
+                              <div id="slittingSection" class="d-none mt-3">
+                                <div id="slitInputsEdit">
+                                    <div class="slit-input-group mb-3">
+                                        <div class="row">
+                                            <div class="col-md-2">
+                                                <label class="form-label">Width (mm)</label>
+                                                <input type="number" class="form-control slit-width" placeholder="Width">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label class="form-label">Length (m)</label>
+                                                <input type="number" class="form-control slit-length" placeholder="Length">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label class="form-label">Status</label>
+                                                <select class="form-select slit-status">
+                                                    <option value="Stock">Stock</option>
+                                                    <option value="Printing">Printing</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">New Roll Number</label>
+                                                <input type="text" class="form-control slit-suffix" value="" readonly>
+                                            </div>
+                                            <div class="col-md-3 d-flex align-items-end">
+                                                <button type="button" class="btn btn-danger btn-sm" onclick="removeSlitInputEdit(this)">Remove</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="slitRemainingDisplayEdit" class="mt-2">
+                                    <!-- Remaining dimensions will be shown here -->
+                                </div>
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="addSlitInputEdit()">Add Another Slit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveEditRoll(event)">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete roll <strong id="deleteRollNumber"></strong>?</p>
+                    <p class="text-danger">This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete All Stock Rolls Modal -->
+    <div class="modal fade" id="deleteAllModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Delete All Stock Rolls
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger">
+                        <h6><i class="fas fa-warning me-2"></i>DANGER: This action is permanent!</h6>
+                        <p class="mb-0">You are about to delete ALL rolls from the database except the protected sample roll (123456).</p>
+                    </div>
+                    <p><strong>This will delete:</strong></p>
+                    <ul>
+                        <li>All main rolls</li>
+                        <li>All slit rolls</li>
+                        <li>All printing jobs</li>
+                        <li>All historical data</li>
+                    </ul>
+                    <p class="text-danger"><strong>This action CANNOT be undone!</strong></p>
+                    <div class="form-check mt-3">
+                        <input class="form-check-input" type="checkbox" id="confirmDeleteAll">
+                        <label class="form-check-label" for="confirmDeleteAll">
+                            I understand this will permanently delete all data
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmDeleteAll()" id="confirmDeleteAllBtn" disabled>
+                        <i class="fas fa-trash me-1"></i>Delete All Stock Rolls
+                    </button>
+                </div>
+            </div>
+        </div>    </div>
+
+    <!-- Change Password Modal -->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-key me-2"></i>Change Admin Password
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="changePasswordForm">
+                        <div class="mb-3">
+                            <label for="currentPassword" class="form-label">Current Password</label>
+                            <input type="password" class="form-control" id="currentPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="newPassword" required minlength="6">
+                            <div class="form-text">Password must be at least 6 characters long</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                            <input type="password" class="form-control" id="confirmPassword" required>
+                        </div>
+                    </form>
+                    <div id="passwordChangeMessage" class="alert d-none"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="changePassword()">
+                        <i class="fas fa-save me-1"></i>Change Password
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light mt-5">
+        <div class="container py-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-industry me-2 text-primary"></i>
+                        <span class="fw-bold">Shree Label Creation</span>
+                    </div>
+                    <small class="text-muted">Professional Paper Stock Management System</small>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <small class="text-muted">
+                        © 2025 Developed by <span class="text-info">Mriganka B Debnath</span>
+                    </small>
+                    <br>
+                    <small class="text-muted">All rights reserved</small>
+                </div>
+            </div>
+        </div>    </footer>
+    
+    <!-- Bootstrap JavaScript (single import) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Define the base path dynamically
+        const APP_BASE_PATH = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+        
+        // Debug logs
+        console.log('Page loaded at:', new Date().toISOString());
+        console.log('Base path:', APP_BASE_PATH);
+        console.log('Current URL:', window.location.href);
+        console.log('Bootstrap loaded:', typeof bootstrap !== 'undefined');
+    </script>
+    <script src="script.js?v=20250605191500&bust=191500"></script>
+    <!-- <script src="script_minimal.js"></script> -->
+    <!-- <script src="script_debug.js"></script> -->
+    
+    <!-- Debug indicator removed for production -->
+</body>
+</html>
