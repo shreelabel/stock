@@ -3,7 +3,7 @@
 error_reporting(0);
 ini_set('display_errors', 0);
 
-// Database configuration for Paper Stock Management System
+// Database configuration for Paper Stock Management System - FreeMySQL Hosting
 $host = 'sql12.freesqldatabase.com';
 $username = 'sql12784281';
 $password = 'TTfcAuK6pP';
